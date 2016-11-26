@@ -31,6 +31,7 @@ class HomeController extends Controller
 
     public function play() {
 
+              return view( 'play' );
         $user = Auth::user();
 
         // check for empty Rooms
