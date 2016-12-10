@@ -6,3 +6,6 @@
 Homestead.json
 Homestead.yaml
 .env
+public/css/app.css.map
+public/css/app.css
+public/css/app.js
