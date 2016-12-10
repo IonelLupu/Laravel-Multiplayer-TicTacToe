@@ -11,11 +11,10 @@
                     You won {{ $user->won_games }} games
                 </div>
 
-
             </div>
 
             <div class="text-center">
-                <a class="btn btn-large btn-info" href="/play">START NEW GAME</a>
+                <a class="btn btn-large btn-info" href="/game">START NEW GAME</a>
             </div>
 
             <hr>

@@ -20,3 +20,6 @@ Auth::routes();
 Route::get('/home', 'HomeController@index');
 
 Route::get('/play', 'HomeController@play');
+Route::get('/game', 'HomeController@game');
+Route::get('/update', 'HomeController@update');
+Route::post('/addSign', 'HomeController@addSign');
