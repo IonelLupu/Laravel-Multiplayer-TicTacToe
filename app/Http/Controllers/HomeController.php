@@ -26,7 +26,7 @@ class HomeController extends Controller
      */
     public function index() {
 
-        $user = \Auth::user();
+        $user = \Auth::user();//retureaza userul curent
 
         return view( 'home' )->with( 'user', $user );
     }
@@ -40,14 +40,14 @@ class HomeController extends Controller
 
     public function play() {
 
-              return view( 'play' );
+//              return view( 'play' );
         $user = Auth::user();
 
         // check for empty Rooms
         $room = Room::where( 'user1_id', $user->id )->first();
 
         if ( $room ) {
-            if ( $room->user2_id )
+            if ( $room->user2_id )  //table_data=matricea x si 0
                 return $room->table_data; //"Inceper joc"
             else
                 return 0; // "Asteapta"
@@ -82,51 +82,67 @@ class HomeController extends Controller
         return view( 'play' );
     }
 
+    public function update() {
+
+        $room = $this->getRoom();
+        if( is_null($room) )
+            return;
+
+        // check who wins
+        if ( $room->isFinished() ) {
+            $room['winner'] = $this->winner();
+        }
+
+        return $room;
+    }
+
     public function addSign( Request $request ) {
 
-        $i    = $request->get( 'i' );
-        $j    = $request->get( 'j' );
-        $user = Auth::user();
+        $row    = $request->get( 'row' );
+        $column = $request->get( 'column' );
+        $user   = Auth::user();
 
         // check for empty Rooms
         $room = $this->getRoom();
-        if ( $room->turn == -1 )
+        if ( $room->turn == -1 ) //-1 = end of the game
             return 0;
 
-        $data = $room->table_data;
+        $tableData = $room->table_data;
 
-        if( !is_null($data[ $i ][ $j ]) )
+        if ( !is_null( $tableData[ $row ][ $column ] ) )
             return;
 
+        // stabilire semn jucator
         $sign = NULL;
 
         if ( $room->user1_id == $user->id && $room->turn == 1 ) {
-            $room->turn = 2;
             $sign       = 'X';
+            $room->turn = 2;
         } elseif ( $room->user2_id == $user->id && $room->turn == 2 ) {
-            $room->turn = 1;
             $sign       = 'O';
+            $room->turn = 1;
         }
 
+        $tableData[ $row ][ $column ] = $sign;
 
-        if ( !is_null( $sign ) )
-            $data[ $i ][ $j ] = $sign;
-
-        $room->table_data = $data;
-
+        $room->table_data = $tableData;
         $room->save();
-        if ( $this->winner() ) {
 
-            $user->won_games ++;
+        $winner = $this->winner();
+        if ( $winner == 1 ) {
+            $user->won_games++;
             $user->save();
+        }
 
+        if ( $winner == 1 || $winner == -1 ) {
             $room->turn = -1;
             $room->save();
         }
 
+        // RETURN NEW DATA TO THE BROWSER
         return [
             "sign"   => $sign,
-            "winner" => $this->winner(),
+            "winner" => $winner,
         ];
     }
 
@@ -143,26 +159,16 @@ class HomeController extends Controller
         return $this->checkGame( $data, $sign );
     }
 
-    public function update() {
-
-        $room = $this->getRoom();
-
-        $data = $room->toArray();
-
-        // check who wins
-        if ( $room->isFinished() ) {
-            $data['winner'] = $this->winner();
-        }
-
-        return $data;
-    }
-
     private function checkGame( $data, $sign ) {
 
         $it    = new RecursiveIteratorIterator( new RecursiveArrayIterator( $data ) );
         $board = [ ];
 
+        $fullBoard = 0;
         foreach ( $it as $v ) {
+            if ( !is_null( $v ) ) {
+                $fullBoard++;
+            }
             array_push( $board, $v );
         }
 
@@ -179,9 +185,11 @@ class HomeController extends Controller
             [ 2, 4, 6 ]
         ];
 
+        // [ x, nul, o, nul, 0, 0, x, x, nul ];
+
         foreach ( $winRules as $rule ) {
             $win = 0;
-            foreach ( $rule as $k => $index ) {
+            foreach ( $rule as $index ) {
                 if ( $board[ $index ] == $sign )
                     $win++;
                 if ( $win == count( $rule ) ) {
@@ -193,6 +201,9 @@ class HomeController extends Controller
         $room = $this->getRoom();
         if ( $room->isFinished() )
             $room->delete();
+
+        if ( $fullBoard == 9 )
+            return -1;
 
         return 0;
 

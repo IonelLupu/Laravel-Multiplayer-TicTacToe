@@ -41,7 +41,8 @@
 
                     <div class="win hide text-center">YOU WIN</div>
                     <div class="lose hide text-center">YOU LOSE</div>
-                    <div class="win lose text-center hide">
+                    <div class="draw hide text-center">DRAW</div>
+                    <div class="win lose draw text-center hide">
                         <a href="/game" class="btn btn-primary"> Start new Game</a>
                     </div>
 
