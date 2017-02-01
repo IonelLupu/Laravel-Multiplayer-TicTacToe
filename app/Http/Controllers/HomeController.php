@@ -31,6 +31,11 @@ class HomeController extends Controller
         return view( 'home' )->with( 'user', $user );
     }
 
+    /**
+     * Returns the user's current room
+     *
+     * @return mixed
+     */
     public function getRoom() {
 
         $user = Auth::user();
@@ -38,6 +43,12 @@ class HomeController extends Controller
         return Room::where( 'user1_id', $user->id )->orWhere( 'user2_id', $user->id )->first();
     }
 
+    /**
+     * Here the method that is called every time a user enters the page
+     * If the user is not in a room we will create one for him.
+     *
+     * @return int
+     */
     public function play() {
 
 //              return view( 'play' );
@@ -78,10 +89,19 @@ class HomeController extends Controller
 
     }
 
+    /**
+     * Show main page
+     *
+     */
     public function game() {
         return view( 'play' );
     }
 
+    /**
+     * Method to call every time the game needs to be updated.
+     *
+     * @return mixed|void
+     */
     public function update() {
 
         $room = $this->getRoom();
@@ -96,6 +116,14 @@ class HomeController extends Controller
         return $room;
     }
 
+    /**
+     * Method to call every time a user adds a sign on the grid
+     * Also here we check if the user wins the gameor not.
+     *
+     * @param Request $request
+     *
+     * @return array|int|void
+     */
     public function addSign( Request $request ) {
 
         $row    = $request->get( 'row' );
@@ -146,6 +174,11 @@ class HomeController extends Controller
         ];
     }
 
+    /**
+     * Get the game's winner
+     *
+     * @return int
+     */
     public function winner() {
         $room = $this->getRoom();
 
