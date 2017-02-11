@@ -16,7 +16,7 @@ $( function () {
 	function createGrid( grid ) {
 		var cellId = 0;
 		
-		// Creare fiecuri rand din grila
+		// Creare fiecarui rand din grila
 		grid.forEach( function ( row ) {
 			var rowElem = $( rowHTML );
 			$( '.grid' ).append( rowElem );
